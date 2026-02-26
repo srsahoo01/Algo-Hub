@@ -1,11 +1,11 @@
-import {load} from "ts-dotenv"
+import { load } from "ts-dotenv";
 
 const env = load({
-   PORT: Number,
+  PORT: Number,
   DATABASE_URL: String,
   JWT_SECRET: String,
-  NODE_ENV: String
+  NODE_ENV: String,
+  JUDGE0_URL:String
+});
 
-})
-
-export default env
+export default env;

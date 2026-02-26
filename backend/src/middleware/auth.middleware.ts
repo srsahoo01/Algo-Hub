@@ -4,7 +4,7 @@ import type { Response, Request, NextFunction } from "express";
 import type { User } from "../generated/prisma/client.ts";
 import { prisma } from "../libs/prisma.ts";
 import env from "../config.ts";
-import type {  jwtPayload } from "../types/authTypes.ts";
+import type { jwtPayload } from "../types/authTypes.ts";
 
 export const authMiddleware = async (
   req: Request,
@@ -18,7 +18,7 @@ export const authMiddleware = async (
         error: "Unauthorized - No token provided",
       });
     }
-   
+
     const decoded = jwt.verify(token, env.JWT_SECRET) as jwtPayload;
     const user: User | null = await prisma.user.findUnique({
       where: { id: decoded.id },
@@ -38,3 +38,33 @@ export const authMiddleware = async (
     });
   }
 };
+
+export const checkAdmin = async (req: Request, res: Response, next: NextFunction) => {
+try {
+  const userId = req.user?.id
+  if (!userId) {
+  throw new Error("User ID is missing");
+  }
+  const user = await prisma.user.findUnique({
+    where:{
+      id:userId
+    },
+    select:{
+      role:true
+    }
+  })
+  
+  if (!user || user.role !== "ADMIN"){
+    return res.status(403).json({
+      message:"Access denied - Admins only"
+    })
+  }
+  next()
+} catch (error) {
+  console.error("Error checking admin status:", error);
+  return res.status(500).json({
+    error: "Internal server error"
+  });
+}
+
+}
