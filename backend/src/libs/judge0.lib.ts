@@ -44,3 +44,15 @@ export const poolBatchResults = async (tokens: string[]) => {
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
 };
+
+
+export function getLanguageName(languageId:number):string | "Unknown" {
+    const LANGUAGE_NAMES:Record<number, string> = {
+        74: "TypeScript",
+        63: "JavaScript",
+        71: "Python",
+        62: "Java",
+    }
+
+    return LANGUAGE_NAMES[languageId] || "Unknown";
+}

@@ -6,7 +6,6 @@ import {
   poolBatchResults,
   submitBatch,
 } from "../libs/judge0.lib.ts";
-import { json } from "node:stream/consumers";
 
 export const createProblem = async (req: Request, res: Response) => {
   const {
