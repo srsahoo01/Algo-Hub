@@ -247,4 +247,31 @@ export const deleteProblemById = async (req: Request, res: Response) => {
 export const getAllProblemsSolvedByUser = async (
   req: Request,
   res: Response,
-) => {};
+) => {
+  try {
+    const problems = await prisma.problem.findMany({
+      where:{
+        solvedBy:{
+          some:{
+            userId:req.user?.id
+          }
+        }
+      },
+      include:{
+        solvedBy:{
+          where:{
+            userId:req.user?.id
+          }
+        }
+      }
+    })
+    res.status(200).json({
+      success:true,
+      message:"Problem fetched successfully",
+      problems
+    })
+  } catch (error) {
+     console.error("Error fethcing  problem solved by user:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};

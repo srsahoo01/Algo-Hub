@@ -31,107 +31,132 @@ enum status {
 
 model User {
   // Primary Key
-  id                 String    @id @default(uuid())
+  id String @id @default(uuid())
 
   // Authentication
-  email              String    @unique
-  passwordHash       String
-  role               UserRole  @default(USER)
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(USER)
 
   // Optional Profile Info
-  username           String?
-  profilePictureUrl  String?
-  phoneNumber        String?
+  username          String?
+  profilePictureUrl String?
+  phoneNumber       String?
 
   // Timestamps
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  problems Problem[]
-  submissions Submission[]
+  problems      Problem[]
+  submissions   Submission[]
   problemSolved ProblemSolved[]
-  
-
+  playlists     Playlist[]
 }
 
-
-model Problem{
-  id                String    @id @default(uuid())
-  title             String
-  description       String
-  difficulty        Difficulty
-  tags              String[]
-  userId            String
-  examples Json
+model Problem {
+  id          String     @id @default(uuid())
+  title       String
+  description String
+  difficulty  Difficulty
+  tags        String[]
+  userId      String
+  examples    Json
   constraints String
-  hints String?
-  editorial String?
+  hints       String?
+  editorial   String?
 
-  testCases Json
-  codeSnippets Json
+  testCases          Json
+  codeSnippets       Json
   referenceSolutions Json
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
-  user_relation User @relation(fields: [userId], references: [id],onDelete: Cascade)
+  user_relation User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   submission Submission[]
-  solvedBy ProblemSolved[]
+  solvedBy   ProblemSolved[]
+
+  problemsInPlaylist ProblemsInPlaylist[]
 }
 
-
-model Submission{
-  id               String    @id @default(uuid())
-  userId           String
-  problemId        String
-  sourceCode Json
-  language String
-  stdin String?
-  stdout String?
-  stderr String?
+model Submission {
+  id            String   @id @default(uuid())
+  userId        String
+  problemId     String
+  sourceCode    Json
+  language      String
+  stdin         String?
+  stdout        String?
+  stderr        String?
   compileOutput String?
-  status status
-  memory String?
-  time String?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  status        status
+  memory        String?
+  time          String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  user_relation User @relation(fields: [userId], references: [id],onDelete: Cascade)
-  problem_relation Problem @relation(fields: [problemId], references: [id],onDelete: Cascade)
+  user_relation    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem_relation Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
 
   testCasesResults TestCaseResult[]
 }
 
 model TestCaseResult {
-  id String @id @default(uuid())
-  submissionId String
-  testCase Int
-  passed Boolean
-  stdout String?
+  id             String   @id @default(uuid())
+  submissionId   String
+  testCase       Int
+  passed         Boolean
+  stdout         String?
   exceptedOutput String?
-  stderr String?
-  compileOutput String?
-  status status
-  memory String?
-  time String?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  stderr         String?
+  compileOutput  String?
+  status         status
+  memory         String?
+  time           String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  submission_relation Submission @relation(fields: [submissionId], references: [id],onDelete: Cascade)
+  submission_relation Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 
   @@index([submissionId])
 }
 
-model ProblemSolved{
-  id String @id @default(uuid())
-  userId String
+model ProblemSolved {
+  id        String   @id @default(uuid())
+  userId    String
   problemId String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user_relation User @relation(fields: [userId], references: [id],onDelete: Cascade)
-  problem_relation Problem @relation(fields: [problemId], references: [id],onDelete: Cascade)
+  user_relation    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem_relation Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
 
   @@unique([userId, problemId])
 }
 
+model Playlist {
+  id            String   @id @default(uuid())
+  name          String
+  description   String?
+  userId        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user_relation User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  problemsInPlayList ProblemsInPlaylist[]
+
+  @@unique([userId, name])
+}
+
+model ProblemsInPlaylist {
+  id         String   @id @default(uuid())
+  playlistId String
+  problemId  String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  playlist_relation Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  problem_relation  Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([playlistId, problemId])
+}
